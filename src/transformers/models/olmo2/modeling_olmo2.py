@@ -4,23 +4,29 @@
 #             the file from the modular. If any change should be done, please apply the change to the
 #                          modular_olmo2.py file directly. One of our CI enforces this.
 #                🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
-from typing import Callable, Optional, Union
+from typing import Callable, Optional
 
 import torch
 import torch.nn as nn
 
+from ...cache_utils import Cache
+from ...modeling_utils import ALL_ATTENTION_FUNCTIONS
+from ...utils import logging
+from typing import Union
+
 from ...activations import ACT2FN
-from ...cache_utils import Cache, DynamicCache
+from ...cache_utils import DynamicCache
 from ...generation import GenerationMixin
 from ...integrations import use_kernel_forward_from_hub
 from ...masking_utils import create_causal_mask
 from ...modeling_flash_attention_utils import FlashAttentionKwargs
 from ...modeling_layers import GradientCheckpointingLayer
-from ...modeling_outputs import BaseModelOutputWithPast, CausalLMOutputWithPast
+from ...modeling_outputs import (
+    BaseModelOutputWithPast, CausalLMOutputWithPast)
 from ...modeling_rope_utils import ROPE_INIT_FUNCTIONS, dynamic_rope_update
-from ...modeling_utils import ALL_ATTENTION_FUNCTIONS, PreTrainedModel
+from ...modeling_utils import PreTrainedModel
 from ...processing_utils import Unpack
-from ...utils import LossKwargs, auto_docstring, can_return_tuple, logging
+from ...utils import LossKwargs, auto_docstring, can_return_tuple
 from .configuration_olmo2 import Olmo2Config
 
 
