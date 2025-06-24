@@ -5,26 +5,26 @@
 #                          modular_olmo2.py file directly. One of our CI enforces this.
 #                🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
 import math
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Tuple
 
 import torch
 from torch import nn
 
+from ...cache_utils import Cache
+from ...utils import is_flash_attn_2_available, is_flash_attn_greater_or_equal_2_10, logging
+from typing import List, Union
+
 from ...activations import ACT2FN
-from ...cache_utils import Cache, DynamicCache, StaticCache
+from ...cache_utils import DynamicCache, StaticCache
 from ...generation import GenerationMixin
 from ...modeling_attn_mask_utils import AttentionMaskConverter
-from ...modeling_outputs import BaseModelOutputWithPast, CausalLMOutputWithPast
+from ...modeling_outputs import (
+    BaseModelOutputWithPast, CausalLMOutputWithPast)
 from ...modeling_utils import PreTrainedModel
 from ...utils import (
-    add_start_docstrings,
-    add_start_docstrings_to_model_forward,
-    is_flash_attn_2_available,
-    is_flash_attn_greater_or_equal_2_10,
-    logging,
-    replace_return_docstrings,
-)
+    add_start_docstrings, add_start_docstrings_to_model_forward, replace_return_docstrings)
 from .configuration_olmo2 import Olmo2Config
+import torch.nn.functional as F
 
 
 if is_flash_attn_2_available():
@@ -120,11 +120,13 @@ class Olmo2DynamicNTKScalingRotaryEmbedding(Olmo2RotaryEmbedding):
         return cos, sin
 
 
+
 def rotate_half(x):
     """Rotates half the hidden dims of the input."""
     x1 = x[..., : x.shape[-1] // 2]
     x2 = x[..., x.shape[-1] // 2 :]
     return torch.cat((-x2, x1), dim=-1)
+
 
 
 def apply_rotary_pos_emb(q, k, cos, sin, position_ids=None, unsqueeze_dim=1):
@@ -152,6 +154,7 @@ def apply_rotary_pos_emb(q, k, cos, sin, position_ids=None, unsqueeze_dim=1):
     q_embed = (q * cos) + (rotate_half(q) * sin)
     k_embed = (k * cos) + (rotate_half(k) * sin)
     return q_embed, k_embed
+
 
 
 def repeat_kv(hidden_states: torch.Tensor, n_rep: int) -> torch.Tensor:
@@ -299,12 +302,13 @@ class Olmo2FlashAttention2(Olmo2Attention):
     Olmo2 flash attention module. This module inherits from `Olmo2Attention` as the weights of the module stays
     untouched. The only required change would be on the forward pass where it needs to correctly call the public API of
     flash attention and deal with padding tokens in case the input contains any of them.
-
+    
     OLMo2 flash attention module. This module inherits from `Olmo2Attention` as the weights of the module stays
     untouched. The only required change would be on the forward pass where it needs to correctly call the public API of
     flash attention and deal with padding tokens in case the input contains any of them.
     """
 
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -594,6 +598,7 @@ OLMO2_START_DOCSTRING = r"""
     "The bare Olmo2 Model outputting raw hidden-states without any specific head on top.",
     OLMO2_START_DOCSTRING,
 )
+
 class Olmo2PreTrainedModel(PreTrainedModel):
     config_class = Olmo2Config
     base_model_prefix = "model"
@@ -848,6 +853,7 @@ class Olmo2Model(Olmo2PreTrainedModel):
             attentions=all_self_attns,
         )
 
+    
     def _update_causal_mask(
         self,
         attention_mask: torch.Tensor,
@@ -914,6 +920,7 @@ class Olmo2Model(Olmo2PreTrainedModel):
         return causal_mask
 
     @staticmethod
+    
     def _prepare_4d_causal_attention_mask_with_cache_position(
         attention_mask: torch.Tensor,
         sequence_length: int,
