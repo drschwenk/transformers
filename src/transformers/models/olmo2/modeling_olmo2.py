@@ -120,7 +120,7 @@ class Olmo2DynamicNTKScalingRotaryEmbedding(Olmo2RotaryEmbedding):
         return cos, sin
 
 
-class OlmoYarnScalingRotaryEmbedding(OlmoRotaryEmbedding):
+class OlmoYarnScalingRotaryEmbedding(Olmo2RotaryEmbedding):
     def __init__(
         self,
         dim,
