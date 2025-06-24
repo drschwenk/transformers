@@ -307,12 +307,12 @@ class Olmo2Attention(nn.Module):
                 self.rotary_emb = OlmoYarnScalingRotaryEmbedding(
                     self.head_dim,
                     max_position_embeddings=self.max_position_embeddings,
-                    scaling_factor=scaling_factor,
+                    scaling_factor=self.config.rope_scaling["factor"],
                     base=self.rope_theta,
-                    dim=self.config.rope_scaling.get("original_max_position_embeddings", None),
-                    max_position_embeddings=self.config.rope_scaling.get("attention_factor", None),
-                    base=self.config.rope_scaling.get("beta_fast", None),
-                    scaling_factor= self.config.rope_scaling.get("beta_slow", None),
+                    original_max_position_embeddings=self.config.rope_scaling.get("original_max_position_embeddings", None),
+                    beta_fast=self.config.rope_scaling.get("beta_fast", None),
+                    beta_slow=self.config.rope_scaling.get("beta_slow", None),
+                    attention_factor=self.config.rope_scaling.get("attention_factor", None),
                 )
             else:
                 raise ValueError(f"Unknown RoPE scaling type {scaling_type}")
