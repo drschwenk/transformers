@@ -1647,9 +1647,10 @@ def convert_modular_file(modular_file):
                 header = AUTO_GENERATED_MESSAGE.format(
                     relative_path=relative_path, short_name=os.path.basename(relative_path)
                 )
-                ruffed_code = run_ruff(header + module.code, True)
-                formatted_code = run_ruff(ruffed_code, False)
-                output[file] = [formatted_code, ruffed_code]
+                # ruffed_code = run_ruff(header + module.code, True)
+                # formatted_code = run_ruff(ruffed_code, False)
+                oc = header + module.code 
+                output[file] = [oc, oc]
         return output
     else:
         print(f"modular pattern not found in {modular_file}, exiting")
