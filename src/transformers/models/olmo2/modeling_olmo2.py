@@ -303,7 +303,6 @@ class Olmo2Attention(nn.Module):
                     scaling_factor=scaling_factor,
                     base=self.rope_theta,
                 )
-                        self,
             elif scaling_type == "yarn"
                 self.rotary_emb = OlmoYarnScalingRotaryEmbedding(
                     self.head_dim,
